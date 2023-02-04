@@ -9,7 +9,7 @@ import isodate
 
 
 def yt_data(url):
-    api_key = "INSERT API KEY HERE"
+    api_key = ""
     video_id = url.split("v=")[-1].split("&")[0]
     api_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_id}&part=contentDetails&key={api_key}"
     response = requests.get(api_url)
