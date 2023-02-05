@@ -89,8 +89,7 @@ class Music(commands.Cog):
             with YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(url, download=False)
             URL = info['formats'][0]['url']
-            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
-                       after=lambda x=None: check_queue(ctx, ctx.message.guild.id))
+            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS), after=lambda x=None: check_queue(ctx, ctx.message.guild.id))
             voice.is_playing()
             await ctx.send(f"**🎵  NOW PLAYING - {title} ({duration})  🎵**")
         else:
