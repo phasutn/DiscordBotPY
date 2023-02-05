@@ -7,6 +7,14 @@ from youtube_dl import YoutubeDL
 import requests
 import isodate
 
+queues = {}
+
+def check_queue(ctx, id):
+    if queues[id] != []:
+        voice = ctx.guild.voice_client
+        source = queues[id].pop(0)
+        voice.play(source)
+
 
 def yt_data(url):
     api_key = ""
@@ -45,7 +53,7 @@ class Music(commands.Cog):
         elif vc.channel != voice_channel:
             await vc.move_to(voice_channel)
 
-    @commands.command()
+    @commands.command(aliases=['dc'])
     async def disconnect(self, ctx):
         vc = ctx.voice_client
 
@@ -54,7 +62,7 @@ class Music(commands.Cog):
         else:
             await vc.disconnect()
 
-    @commands.command()
+    @commands.command(aliases=['p'])
     async def play(self, ctx, url):
         data = yt_data(url)
         title = data[0]
@@ -81,12 +89,57 @@ class Music(commands.Cog):
             with YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(url, download=False)
             URL = info['formats'][0]['url']
-            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                       after=lambda x=None: check_queue(ctx, ctx.message.guild.id))
             voice.is_playing()
             await ctx.send(f"**🎵  NOW PLAYING - {title} ({duration})  🎵**")
         else:
             await ctx.send("Already playing song")
             return
+
+    @commands.command(aliases=['q'])
+    async def queue(self, ctx, url):
+        vc = ctx.guild.voice_client
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if vc is None:
+            await ctx.send("I am not connected to a voice channel!")
+        elif not voice.is_playing():
+            await ctx.send("Play a song first!")
+        else:
+            data = yt_data(url)
+            title = data[0]
+            duration = data[1]
+
+            YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
+            FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                              'options': '-vn'}
+
+            with YoutubeDL(YDL_OPTIONS) as ydl:
+                info = ydl.extract_info(url, download=False)
+            URL = info['formats'][0]['url']
+            source = FFmpegPCMAudio(URL, **FFMPEG_OPTIONS)
+
+            guild_id = ctx.message.guild.id
+
+            if guild_id in queues:
+                queues[guild_id].append(source)
+            else:
+                queues[guild_id] = [source]
+            await ctx.send(f"Added **{title} ({duration})** to queue")
+
+    @commands.command(aliases=['s'])
+    async def skip(self, ctx):
+        vc = ctx.voice_client
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if vc is None:
+            await ctx.send("I am not connected to a voice channel!")
+        elif not voice.is_playing():
+            await ctx.send("No song is playing!")
+        else:
+            voice.stop()
+            await ctx.send("SKIPPING SONG")
 
     @commands.command()
     async def pause(self, ctx):
