@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import discord
 from discord.ext import commands
 from discord.utils import get
@@ -17,19 +16,6 @@ vid_id = {}
 
 def yt_data(url):
     api_key = ""  # GOOGLE API TOKEN HERE
-=======
-import discord 
-from discord.ext import commands
-from discord.utils import get
-from discord import FFmpegPCMAudio
-from youtube_dl import YoutubeDL
-
-import requests
-import json
-import isodate
-
-def yt_data(url):
-    api_key = "__GOOGLE_APIKEY__"
     video_id = url.split("v=")[-1].split("&")[0]
     api_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_id}&part=contentDetails&key={api_key}"
     response = requests.get(api_url)
@@ -102,11 +88,6 @@ class Music(commands.Cog):
         if message.content == "Sussy Baka":
             await self.sus(ctx)
             return
-
-        if message.content == "hello":
-            await ctx.send("hello")
-            return
-
         # if str(message.author) == "":
         #     await message.channel.send("")
 
@@ -130,19 +111,6 @@ class Music(commands.Cog):
         print("Bot is Online!")
 
     @commands.command(pass_context=True)
-    if(duration.total_seconds() < 3600): duration = str(duration)[2:]
-    return title, duration
-
-
-class Music(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print("music.py is Online!")
-
-    @commands.command(pass_context = True)
     async def join(self, ctx):
         if ctx.author.voice is None:
             await ctx.send("You are not in a Voice Channel!")
@@ -160,12 +128,6 @@ class Music(commands.Cog):
     async def disconnect(self, ctx):
         vc = ctx.voice_client
         guild_id = ctx.message.guild.id
-        await vc.move_to(voice_channel)
-    
-
-    @commands.command()
-    async def disconnect(self, ctx):
-        vc = ctx.voice_client
 
         if vc is None:
             await ctx.send("I am not connected to a voice channel!")
@@ -222,17 +184,7 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             await ctx.send("You are not in a Voice Channel!")
             return
-            await vc.disconnect()
 
-    @commands.command()
-    async def play(self, ctx, url):
-        data = yt_data(url)
-        title = data[0]
-        duration = data[1]
-
-        if ctx.author.voice is None:
-            await ctx.send("You are not in a Voice Channel!")
-            return
         vc = ctx.voice_client
         voice_channel = ctx.author.voice.channel
 
@@ -420,7 +372,7 @@ class Music(commands.Cog):
             else:
                 await ctx.send("ENDING SONG")
 
-        
+    # Pause the current song
     @commands.command()
     async def pause(self, ctx):
         vc = ctx.voice_client
@@ -441,6 +393,7 @@ class Music(commands.Cog):
         else:
             vc.resume()
             await ctx.send("Resume ▶️")
+
 
 async def setup(bot):
     await bot.add_cog(Music(bot))
