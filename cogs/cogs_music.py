@@ -88,6 +88,11 @@ class Music(commands.Cog):
         if message.content == "Sussy Baka":
             await self.sus(ctx)
             return
+
+        if message.content == "hello":
+            await ctx.send("hello")
+            return
+
         # if str(message.author) == "":
         #     await message.channel.send("")
 
