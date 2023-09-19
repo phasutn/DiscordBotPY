@@ -2,11 +2,12 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from discord import FFmpegPCMAudio
-from youtube_dl import YoutubeDL
+from yt_dlp import YoutubeDL
 
 import requests
 import isodate
 import asyncio
+import random
 
 queues = {}
 queue_list = {}
@@ -26,6 +27,17 @@ def yt_data(url):
     duration = isodate.parse_duration(duration_ISO)
     if (duration.total_seconds() < 3600): duration = str(duration)[2:]
     return title, duration
+
+
+def random_list(anime_name):
+    with open("anime_song_list/" + anime_name + ".txt", "r") as file:
+        lines = file.readlines()
+        random_num = random.randint(1, len(lines))
+        for i, line in enumerate(lines, start=1):
+            if i == random_num:
+                del lines
+                return line.strip()
+        return "no entry found"
 
 
 # def next_queue(ctx, id):
@@ -73,9 +85,16 @@ class Music(commands.Cog):
         ctx = await self.bot.get_context(message)
         if message.author == self.bot.user:
             return
-        if message.content == "sussy baka":
+        if message.content == "Sussy Baka":
             await self.sus(ctx)
             return
+        # if str(message.author) == "":
+        #     await message.channel.send("")
+
+        # haik = ["Haikyu", "Haikyu!", "Haikyu!!", "Haikyu!!!", "Haikyuu", "Haikyuu!", "Haikyuu!!", "Haikyuu!!!"]
+        # for s in haik:
+        #     if message.content.lower() == s.lower():
+        #         await message.channel.send("")
 
     # Display next song
     @commands.Cog.listener()
@@ -117,8 +136,19 @@ class Music(commands.Cog):
                 del queues[guild_id]
                 del queue_list[guild_id]
                 del vid_id[guild_id]
+            await ctx.send("Disconnect")
             self.is_playing = False
             await vc.disconnect()
+
+    @commands.command()
+    async def steins_gate(self, ctx):
+        r = random_list("steins_gate")
+        await self.play(ctx, r)
+
+    @commands.command(aliases=['btr'])
+    async def bocchi_the_rock(self, ctx):
+        r = random_list("bocchi_the_rock")
+        await self.play(ctx, r)
 
     # Big sus
     @commands.command()
@@ -143,7 +173,7 @@ class Music(commands.Cog):
         if not self.is_playing:
             with YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(url, download=False)
-            URL = info['formats'][0]['url']
+            URL = info['url']
             voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
             await asyncio.sleep(3)
             voice.stop()
@@ -189,7 +219,7 @@ class Music(commands.Cog):
 
             with YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(url, download=False)
-            URL = info['formats'][0]['url']
+            URL = info['url']
             voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                        after=lambda x=None: self.next_queue(ctx, ctx.message.guild.id))
             self.is_playing = True
@@ -233,7 +263,7 @@ class Music(commands.Cog):
 
         with YoutubeDL(YDL_OPTIONS) as ydl:
             info = ydl.extract_info(url, download=False)
-        URL = info['formats'][0]['url']
+        URL = info['url']
         source = FFmpegPCMAudio(URL, **FFMPEG_OPTIONS)
 
         guild_id = ctx.message.guild.id
@@ -249,7 +279,7 @@ class Music(commands.Cog):
             queue_list[guild_id] = [entry]
             vid_id[guild_id] = [url_id]
 
-        await ctx.send(f"Added **{title} ({duration})** to queue :notes:", delete_after=3.0)
+        await ctx.send(f"Added **{title} ({duration})** to queue :notes:")
 
     # Print the queue as an embed
     @commands.command(aliases=['cq', 'check'])
@@ -310,7 +340,8 @@ class Music(commands.Cog):
         else:
             queues[guild_id].pop(num)
             name = queue_list[guild_id].pop(num)
-            await ctx.send(f"**{num}. {name}** *is removed from the queue!*")
+            vid_id[guild_id].pop(num)
+            await ctx.send(f"**{song_num}. {name}** *is removed from the queue!*")
 
     # Show the now playing song
     @commands.command(aliases=['np', 'nowplaying'])
