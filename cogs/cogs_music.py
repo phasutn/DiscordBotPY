@@ -30,7 +30,6 @@ import isodate
 
 def yt_data(url):
     api_key = "__GOOGLE_APIKEY__"
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
     video_id = url.split("v=")[-1].split("&")[0]
     api_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_id}&part=contentDetails&key={api_key}"
     response = requests.get(api_url)
@@ -40,7 +39,6 @@ def yt_data(url):
     duration_ISO = video_data['items'][0]['contentDetails']['duration']
 
     duration = isodate.parse_duration(duration_ISO)
-<<<<<<< HEAD
     if (duration.total_seconds() < 3600): duration = str(duration)[2:]
     return title, duration
 
@@ -132,7 +130,6 @@ class Music(commands.Cog):
         print("Bot is Online!")
 
     @commands.command(pass_context=True)
-=======
     if(duration.total_seconds() < 3600): duration = str(duration)[2:]
     return title, duration
 
@@ -146,7 +143,6 @@ class Music(commands.Cog):
         print("music.py is Online!")
 
     @commands.command(pass_context = True)
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
     async def join(self, ctx):
         if ctx.author.voice is None:
             await ctx.send("You are not in a Voice Channel!")
@@ -158,26 +154,22 @@ class Music(commands.Cog):
         if vc is None:
             await voice_channel.connect()
         elif vc.channel != voice_channel:
-<<<<<<< HEAD
             await vc.move_to(voice_channel)
 
     @commands.command(aliases=['dc'])
     async def disconnect(self, ctx):
         vc = ctx.voice_client
         guild_id = ctx.message.guild.id
-=======
-            await vc.move_to(voice_channel) 
+        await vc.move_to(voice_channel)
     
 
     @commands.command()
     async def disconnect(self, ctx):
         vc = ctx.voice_client
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
 
         if vc is None:
             await ctx.send("I am not connected to a voice channel!")
         else:
-<<<<<<< HEAD
             if guild_id in queues:
                 del queues[guild_id]
                 del queue_list[guild_id]
@@ -230,8 +222,6 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             await ctx.send("You are not in a Voice Channel!")
             return
-
-=======
             await vc.disconnect()
 
     @commands.command()
@@ -243,13 +233,10 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             await ctx.send("You are not in a Voice Channel!")
             return
-        
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
         vc = ctx.voice_client
         voice_channel = ctx.author.voice.channel
 
         if vc is None:
-<<<<<<< HEAD
             await voice_channel.connect()
         elif vc.channel != voice_channel:
             await vc.move_to(voice_channel)
@@ -433,28 +420,7 @@ class Music(commands.Cog):
             else:
                 await ctx.send("ENDING SONG")
 
-    # Pause the current song
-=======
-            vc = await voice_channel.connect()
-        elif vc.channel != voice_channel:
-            vc = await vc.move_to(voice_channel) 
         
-        YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
-        if not voice.is_playing():
-            with YoutubeDL(YDL_OPTIONS) as ydl:
-                info = ydl.extract_info(url, download=False)
-            URL = info['formats'][0]['url']
-            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-            voice.is_playing()
-            await ctx.send(f"**🎵  NOW PLAYING - {title} ({duration})  🎵**")
-        else:
-            await ctx.send("Already playing song")
-            return
-        
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
     @commands.command()
     async def pause(self, ctx):
         vc = ctx.voice_client
@@ -464,12 +430,8 @@ class Music(commands.Cog):
         else:
             vc.pause()
             await ctx.send("Paused ⏸️")
-<<<<<<< HEAD
 
     # Resume the current song
-=======
-    
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
     @commands.command()
     async def resume(self, ctx):
         vc = ctx.voice_client
@@ -480,11 +442,5 @@ class Music(commands.Cog):
             vc.resume()
             await ctx.send("Resume ▶️")
 
-<<<<<<< HEAD
-
 async def setup(bot):
     await bot.add_cog(Music(bot))
-=======
-async def setup(bot):
-    await bot.add_cog(Music(bot))
->>>>>>> c0a888be29799bc5e2df70e740d6c02df3e5b176
